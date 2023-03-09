@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  nginx:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    ports:
+      - 80:80
+    volumes:
+      - static_volume:/app/backend/django_static
+      - ./docker/nginx/development:/etc/nginx/conf.d
+    depends_on:
+      - backend
+    image: 331866709947.dkr.ecr.us-east-1.amazonaws.com/timebreaker49/blog:nginx
+  backend:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
+    entrypoint: /app/docker/backend/wsgi-entrypoint.sh
+    volumes:
+      - .:/app
+      - static_volume:/app/backend/django_static
+    expose:
+      - 8000:8000
+    image: 331866709947.dkr.ecr.us-east-1.amazonaws.com/timebreaker49/blog:backend
+
+volumes:
+  static_volume: {}
